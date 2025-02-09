@@ -82,7 +82,7 @@ var userDB = {
 							});
 	
 							console.log("@@token " + token);
-							return callback(null, token, user);
+							return callback(null, token, result);
 						} else {
 							console.log("Incorrect password");
 							return callback(new Error("Email/Password does not match."), null, null);
