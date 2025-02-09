@@ -69,6 +69,29 @@ var listingDB = {
 
         })
     },
+    // Old Function
+    // getOtherUsersListings: function (query, userid, callback) {
+    //     var conn = db.getConnection();
+    //     conn.connect(function (err) {
+    //         if (err) {
+    //             console.log(err);
+    //             return callback(err, null);
+    //         } else {
+    //             var sql = "select l.title,l.category,l.price,l.id,i.name from listings l,images i where l.id = i.fk_product_id and l.fk_poster_id != ? and l.title like '%" + query + "%'";
+    //             conn.query(sql, [userid], function (err, result) {
+    //                 conn.end()
+    //                 if (err) {
+    //                     console.log(err);
+    //                     return callback(err, null);
+    //                 } else {
+    //                     return callback(null, result)
+    //                 }
+    //             });
+    //         }
+
+    //     })
+    // },
+    // Updated Function 
     getOtherUsersListings: function (query, userid, callback) {
         var conn = db.getConnection();
         conn.connect(function (err) {
@@ -76,7 +99,6 @@ var listingDB = {
                 console.log(err);
                 return callback(err, null);
             } else {
-                // Add wildcards around the query parameter for the LIKE clause
                 var searchQuery = '%' + query + '%';
                 var sql = "SELECT l.title, l.category, l.price, l.id, i.name " +
                           "FROM listings l, images i " +
@@ -95,7 +117,6 @@ var listingDB = {
             }
         });
     },
-    
     updateListing: function (title, category, description, price, id, callback) {
         var conn = db.getConnection();
         conn.connect(function (err) {
