@@ -1,0 +1,199 @@
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://kit.fontawesome.com/2a646d8a1f.js" crossorigin="anonymous"></script>
+<!------ Include the above in your HEAD tag ---------->
+
+<link rel="stylesheet" href="css/listings.css">
+
+<script>
+    $(document).ready(function () {
+        var userData = localStorage.getItem('userData');
+        var userDataJson = JSON.parse(userData);
+        var username = userDataJson[0].username;
+        var token = localStorage.getItem('token');
+
+        var urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has("search")) {
+            var search = urlParams.get("search");
+        }
+
+        if (urlParams.has("page")) {
+            var pagenumber = parseInt(urlParams.get("page"));
+        } else {
+            var pagenumber = 0;
+        }
+
+        $('#profile').html(username);
+        $('#searchheader').html("Listings which contains:" + search);
+
+        $.ajax({
+            headers: { "authorization": "Bearer " + token },
+            url: "http://localhost:8081/search/" + `${search}`,//supply the api url
+            type: "GET",///supply the method
+            contentType: "application/json",//contentType: "application/json",//standard
+            dataType: "json",
+            success: function (data, textStatus, xhr) {//retrieve some data back from server
+                if (data.success) {
+                    var NumberOfListings = data.result.length;
+
+                    if ((NumberOfListings - (6 * (pagenumber + 1))) >= 0) {
+                        var PagesNotUsed = 0;
+                    } else {
+                        var PagesNotUsed = NumberOfListings - (6 * (pagenumber + 1));
+                    }
+
+                    var postsHtml = "";
+                    for (i = 6 * pagenumber; i < (6 * (pagenumber + 1)) + PagesNotUsed; i++) {
+                        postsHtml += ` <div class="col-12 col-md-6 col-lg-4">
+                <div class="card">
+                    <img class="card-img-top" width = 338px height = 225.325px src="http://localhost:8081/${data.result[i].name}" alt="Card image cap">
+                    <div class="card-body">
+                        <h4 class="card-title">${data.result[i].title}</h4>
+                        <p class="card-text">${data.result[i].category}</p>
+                        <div class="row">
+                            <div class="col">
+                                <p class="btn btn-danger btn-block">$${data.result[i].price}</p>
+                            </div>
+                            <div class="col">
+                                <a href = "http://localhost:3001/viewlisting.html?listingid=${data.result[i].id}" class="btn btn-success btn-block">View</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+                        $('#listings').html(postsHtml);
+                        var maxpages = Math.ceil(data.result.length / 6) - 1;
+                        if (maxpages == -1) {
+                            var paginationCode = "";
+                        }
+                        else if (pagenumber == 0 && maxpages == 0) {
+                            var paginationCode = `<ul class="pagination">
+                <li class="page-item active">
+                    <a class="page-link">${(parseInt(pagenumber) + 1)} <span class="sr-only">(current)</span></a>
+                </li>`
+                        }
+                        else if (pagenumber == 0) {
+                            var paginationCode = `<ul class="pagination">
+                <li class="page-item active">
+                    <a class="page-link">${(parseInt(pagenumber) + 1)} <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://localhost:3001/searchlistings.html?page=${(parseInt(pagenumber) + 1)}&search=${search}">Next</a>
+                </li>
+            </ul>`
+                        } else if (pagenumber > 0 && pagenumber < maxpages) {
+                            var paginationCode = `<ul class="pagination">
+                        <li class="page-item">
+                    <a class="page-link" href="http://localhost:3001/searchlistings.html?page=${(parseInt(pagenumber) - 1)}&search=${search}">Previous</a>
+                </li>
+                <li class="page-item active">
+                    <a class="page-link">${(parseInt(pagenumber) + 1)} <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://localhost:3001/searchlistings.html?page=${(parseInt(pagenumber) + 1)}&search=${search}">Next</a>
+                </li>
+            </ul>`
+                        } else if (pagenumber == maxpages) {
+                            var paginationCode = `<ul class="pagination">
+                        <li class="page-item">
+                    <a class="page-link" href="http://localhost:3001/searchlistings.html?page=${(parseInt(pagenumber) - 1)}&search=${search}">Previous</a>
+                </li>
+                <li class="page-item active">
+                    <a class="page-link">${(parseInt(pagenumber) + 1)} <span class="sr-only">(current)</span></a>
+                </li>
+            </ul>`
+                        }
+                        $('#pagination').html(paginationCode);
+
+                    }
+                } else {
+                    window.alert("Error in retrieving")
+                }
+            }, error(xhr, textStatus, err) {
+                console.log(err)
+                window.alert("Error in retrieving")
+            }
+
+        });
+
+
+        $('#logout').click(function () {
+            $.ajax({
+                url: "http://localhost:8081/user/logout",//supply the api url
+                type: "POST",///supply the method
+                contentType: "application/json",//standard
+                dataType: "json",
+                success: function (data, textStatus, xhr) {//retrieve some data back from server
+                    console.log(data)
+                    window.localStorage.clear()
+                    window.location.assign("http://localhost:3001/loginPage.html")
+                }, error(xhr, textStatus, err) {
+                    console.log(err)
+                    console.log("Error")
+                }
+            });
+            return false;
+        })
+
+        $('#searchbutton').click(function () {
+            var search = $('#search').val()
+            window.location.assign("http://localhost:3001/searchlistings.html?search=" + `${search}`)
+        })
+    });
+</script>
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="listings.html">Snapsell</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+            aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <form class="form-inline my-2 my-lg-0">
+            <div class="input-group input-group-sm" id="searchbar">
+                <input type="text" size="50" class="form-control" id="search" aria-label="Small"
+                    aria-describedby="inputGroup-sizing-sm" placeholder="Search...">
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-secondary btn-number" id="searchbutton">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="collapse navbar-collapse justify-content-end" id="navbarsExampleDefault">
+                <a href="sell.html"><button type="button" class="btn-danger btn-sm ml-3">
+                        Sell
+                    </button></a>
+                <a href="viewprofile.html"><button type="button" class="btn-primary btn-sm ml-3" id="profile">
+                        Profile
+                    </button></a>
+                <a href="offers.html"><button type="button" class="btn-info btn-sm ml-3">
+                        <i class="far fa-comments"></i>Offers
+                    </button></a>
+                <button type="button" class="btn-info btn-sm ml-3" id="logout">
+                    Logout
+                </button>
+        </form>
+    </div>
+    </div>
+</nav>
+<section class="jumbotron text-center">
+    <div class="container">
+        <h1 class="jumbotron-heading" id='searchheader'>Your listings</h1>
+    </div>
+</section>
+<div class="container">
+    <div class="col">
+        <div class="row" id='listings'>
+            <h3 class="jumbotron-heading-center" id='searchheader'>No Listings Found</h3>
+        </div>
+    </div>
+    <nav aria-label="...">
+        <div id="pagination">
+        </div>
+    </nav>
+</div>
+

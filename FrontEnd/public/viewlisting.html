@@ -1,0 +1,243 @@
+
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://kit.fontawesome.com/2a646d8a1f.js" crossorigin="anonymous"></script>
+<!------ Include the above in your HEAD tag ---------->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>eCommerce Product Detail</title>
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+	<link rel="stylesheet" href="css/viewlisting.css">
+
+</head>
+
+<script>
+	$(document).ready(function () {
+		var userData = localStorage.getItem('userData');
+		var userDataJson = JSON.parse(userData);
+		var username = userDataJson[0].username;
+		var userid = userDataJson[0].id;
+		var token = localStorage.getItem('token');
+
+
+		$('#profile').html(username);
+
+		var urlParams = new URLSearchParams(window.location.search);
+		if (urlParams.has("listingid")) {
+			var listingid = urlParams.get("listingid");
+		}
+
+		$.ajax({
+			url: "http://localhost:8081/listing/" + `${listingid}` + "/",//supply the api url
+			type: "GET",///supply the method
+			contentType: "application/json",//standard
+			dataType: "json",
+			success: function (data, textStatus, xhr) {//retrieve some data back from server
+				if (data.success) {
+					var postsHtml = "";
+					if (data.result[0].fk_poster_id == userid) {
+						postsHtml += ` <div class="container-fliud">
+				<div class="wrapper row">
+					<div class="preview col-md-6">
+
+						<div class="preview-pic tab-content">
+							<div class="tab-pane active" id="pic-1"><img class="card-img-top" width = 507px height = 450.65px src="http://localhost:8081/${data.result[0].name}" alt="Card image cap"></div>
+						</div>
+					</div>
+					<div class="details col-md-6">
+						<h3 class="product-title">${data.result[0].title}</h3>
+						<h4>Category: ${data.result[0].category}</h4>
+						<p class="product-description">Description: ${data.result[0].description}</p>
+						<p>Posted by: ${data.result[0].username}</p>
+						<h4 class="price">Price: $ <span>${data.result[0].price}</span></h4>
+						<div class="action">
+								<button class="add-to-cart btn btn-primary" id = "edit" type="button">Edit</button>
+						</div>
+					</div>
+				</div>
+			</div>`;
+					} else {
+						postsHtml += ` <div class="container-fliud">
+				<div class="wrapper row">
+					<div class="preview col-md-6">
+
+						<div class="preview-pic tab-content">
+							<div class="tab-pane active" id="pic-1"><img class="card-img-top" width = 507px height = 450.65px src="http://localhost:8081/${data.result[0].name}" alt="Card image cap"></div>
+						</div>
+					</div>
+					<div class="details col-md-6">
+						<h3 class="product-title">${data.result[0].title}</h3>
+						<h4>Category: ${data.result[0].category}</h4>
+						<p class="product-description">Description: ${data.result[0].description}</p>
+						<p>Posted by: ${data.result[0].username}</p>
+						<h4 class="price">Price: <span>${data.result[0].price}</span></h4>
+						<div class="action">
+							<form class="form-inline my-2 my-lg-0">
+								<div class="input-group input-group-sm" id="searchbar">
+									<input type="text" size="15" class="form-control" id="offer" aria-label="Small"
+										aria-describedby="inputGroup-sizing-sm" placeholder="Input your offer">
+								</div>
+								<button class="add-to-cart btn btn-primary" id = "button" type="button">Offer</button>
+								<button class="like btn btn-danger" id = "like" type="button"><span id = "amount" class="fa fa-heart style="color:white;"">
+										2</span></button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>`;
+					}
+					$('#listing').html(postsHtml);
+
+					$.ajax({
+						url: "http://localhost:8081/likes/" + `${listingid}` + "/",//supply the api url
+						type: "GET",///supply the method
+						contentType: "application/json",//standard
+						dataType: "json",
+						success: function (data, textStatus, xhr) {//retrieve some data back from server
+							if (data.success) {
+								$('#amount').html(data.amount)
+							} else {
+								window.alert("Unsuccessful in getting likes")
+							}
+						}, error(xhr, textStatus, err) {
+							console.log(err)
+							window.alert("Error")
+						}
+					});
+
+					$('#like').click(function () {
+						$.ajax({
+							headers: { "authorization": "Bearer " + token },
+							url: "http://localhost:8081/likeorunlike/" + `${listingid}` + "/",//supply the api url
+							type: "GET",///supply the method
+							contentType: "application/json",//standard
+							dataType: "json",
+							success: function (data, textStatus, xhr) {//retrieve some data back from server
+								if (data.success) {
+									location.reload();
+								} else {
+									window.alert("Could not like/unlike this post")
+								}
+							}, error(xhr, textStatus, err) {
+								console.log(err)
+								window.alert("Error")
+							}
+						});
+						return false;
+					})
+
+					$('#button').click(function () {
+						var offer = $('#offer').val();
+						var data = `{"offer":${offer},"fk_listing_id":${listingid}}`
+						$.ajax({
+							headers: { "authorization": "Bearer " + token },
+							url: "http://localhost:8081/offer/",//supply the api url
+							type: "POST",///supply the method
+							data: data,//supply the data to the back-end(like PostMAN body but sending it in raw json format)
+							contentType: "application/json",//standard
+							dataType: "json",
+							success: function (data, textStatus, xhr) {//retrieve some data back from server
+								if (data.success) {
+									window.alert("Offer has been made")
+									location.reload();
+								} else {
+									window.alert("Unsuccessful")
+								}
+							}, error(xhr, textStatus, err) {
+								console.log(err)
+								window.alert("Error")
+							}
+						});
+						return false;
+					})
+					$('#edit').click(function () {
+						window.location.assign("http://localhost:3001/editlisting.html?listingid=" + `${listingid}`)
+					})
+				} else {
+					window.alert("Error in retrieving")
+				}
+			}, error(xhr, textStatus, err) {
+				console.log(err)
+				window.alert("Error in retrieving")
+			}
+
+		});
+		$('#logout').click(function () {
+			$.ajax({
+				url: "http://localhost:8081/user/logout",//supply the api url
+				type: "POST",///supply the method
+				contentType: "application/json",//standard
+				dataType: "json",
+				success: function (data, textStatus, xhr) {//retrieve some data back from server
+					console.log(data)
+					window.localStorage.clear()
+					window.location.assign("http://localhost:3001/loginPage.html")
+				}, error(xhr, textStatus, err) {
+					console.log(err)
+					console.log("Error")
+				}
+			});
+			return false;
+		})
+
+		$('#searchbutton').click(function () {
+			var search = $('#search').val()
+			window.location.assign("http://localhost:3001/searchlistings.html?search=" + `${search}`)
+		})
+	})
+
+</script>
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+	<div class="container">
+		<a class="navbar-brand" href="listings.html">Snapsell</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+			aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		<form class="form-inline my-2 my-lg-0">
+			<div class="input-group input-group-sm" id="searchbar">
+				<input type="text" size="50" class="form-control" id="search" aria-label="Small"
+					aria-describedby="inputGroup-sizing-sm" placeholder="Search...">
+				<div class="input-group-append">
+					<button type="button" class="btn btn-secondary btn-number" id="searchbutton">
+						<i class="fa fa-search"></i>
+					</button>
+				</div>
+			</div>
+
+			<div class="collapse navbar-collapse justify-content-end" id="navbarsExampleDefault">
+				<a href="sell.html"><button type="button" class="btn-danger btn-sm ml-3" id="test1">
+						Sell
+					</button></a>
+				<a href="viewprofile.html"><button type="button" class="btn-primary btn-sm ml-3" id="profile">
+						Profile
+					</button></a>
+				<a href="offers.html"><button type="button" class="btn-info btn-sm ml-3">
+						<i class="far fa-comments"></i>Offers
+					</button></a>
+				<button type="button" class="btn-info btn-sm ml-3" id="logout">
+					Logout
+				</button>
+		</form>
+	</div>
+	</div>
+</nav>
+
+<body>
+	<div class="container">
+		<div class="card" id="listing">
+		</div>
+	</div>
+</body>
+
+</html>

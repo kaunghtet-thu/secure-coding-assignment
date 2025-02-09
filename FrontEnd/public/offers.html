@@ -1,0 +1,178 @@
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://kit.fontawesome.com/2a646d8a1f.js" crossorigin="anonymous"></script>
+<!------ Include the above in your HEAD tag ---------->
+
+<link rel="stylesheet" href="css/listings.css">
+
+<script>
+    $(document).ready(function () {
+        var userData = localStorage.getItem('userData');
+        var userDataJson = JSON.parse(userData);
+        var username = userDataJson[0].username;
+        var token = localStorage.getItem('token');
+        $('#profile').html(username);
+
+        var urlParams = new URLSearchParams(window.location.search);
+        $.ajax({
+            headers: { "authorization": "Bearer " + token },
+            url: "http://localhost:8081/offer/",//supply the api url
+            type: "GET",///supply the method
+            contentType: "application/json",//standard
+            dataType: "json",
+            success: function (data, textStatus, xhr) {//retrieve some data back from server
+                if (data.success) {
+                    var postsHtml = "";
+                    for (var i = 0; i < data.result.length; i++) {
+                        postsHtml += `<div class="card" style="margin-top: 2rem;">
+                    <div class="card-footer text-muted">
+                        <p class="card-text">${data.result[i].username} offered ${data.result[i].offer} for:</p>
+                    </div>
+                    <div class="card-body">
+                        ${data.result[i].title}
+                    </div>
+                    <div class="card-footer text-muted form-inline">
+                        <a href = "http://localhost:3001/offers.html?offerid=${data.result[i].id}&status=accepted"><button type="button" class="btn btn-success" id = "accept" class="View"><i class="fas fa-check"></i></button></a>
+                        <span>&nbsp &nbsp</span>
+                        <a href = "http://localhost:3001/offers.html?offerid=${data.result[i].id}&status=rejected"><button type="button" class="btn btn-danger" id = "reject" class="View"><i class="fas fa-times"></i></button></a>
+                    </div>
+                </div>`
+                    }
+                    $('#offers').html(postsHtml);
+                } else {
+                    window.alert("Unable to retrieve offers")
+                }
+            }, error(xhr, textStatus, err) {
+                console.log(err)
+                window.alert("Error")
+            }
+        });
+        $.ajax({
+            headers: { "authorization": "Bearer " + token },
+            url: "http://localhost:8081/offer/status/",//supply the api url
+            type: "GET",///supply the method
+            contentType: "application/json",//standard
+            dataType: "json",
+            success: function (data, textStatus, xhr) {//retrieve some data back from server
+                if (data.success) {
+                    var postsHtml = "";
+                    for (var i = 0; i < data.result.length; i++) {
+                        postsHtml += ` <div class="card" style="margin-top: 2rem;">
+                    <div class="card-footer text-muted">
+                        <p class="card-text">${data.result[i].username} has ${data.result[i].status}\n your offer of ${data.result[i].offer}:</p>
+                    </div>
+                    <div class="card-body">
+                        ${data.result[i].title}
+                    </div>
+                </div>`
+                    }
+                    $('#offer_status').html(postsHtml);
+                } else {
+                    window.alert("Unable to retrieve offer status")
+                }
+            }, error(xhr, textStatus, err) {
+                console.log(err)
+                window.alert("Error")
+            }
+        });
+        if (urlParams.has("offerid") && urlParams.has("status")) {
+            var offerid = urlParams.get("offerid");
+            var status = urlParams.get("status");
+            var data = `{"status":"${status}","offerid":${offerid}}`
+            $.ajax({
+                url: "http://localhost:8081/offer/decision/",//supply the api url
+                type: "POST",///supply the method
+                data: data,//supply the data to the back-end(like PostMAN body but sending it in raw json format)
+                contentType: "application/json",//standard
+                dataType: "json",
+                success: function (data, textStatus, xhr) {//retrieve some data back from server
+                    if (data.success) {
+                        window.alert(`Offer has been ${status}`)
+                        window.location.assign("http://localhost:3001/offers.html")
+                    } else {
+                        window.alert("Error in accepting/rejecting offer")
+                    }
+                }, error(xhr, textStatus, err) {
+                    console.log(err)
+                    window.alert("Error")
+                }
+            });
+        }
+        $('#logout').click(function () {
+            $.ajax({
+                url: "http://localhost:8081/user/logout",//supply the api url
+                type: "POST",///supply the method
+                contentType: "application/json",//standard
+                dataType: "json",
+                success: function (data, textStatus, xhr) {//retrieve some data back from server
+                    console.log(data)
+                    window.localStorage.clear()
+                    window.location.assign("http://localhost:3001/loginPage.html")
+                }, error(xhr, textStatus, err) {
+                    console.log(err)
+                    console.log("Error")
+                }
+            });
+            return false;
+        })
+
+        $('#searchbutton').click(function () {
+            var search = $('#search').val()
+            window.location.assign("http://localhost:3001/searchlistings.html?search=" + `${search}`)
+        })
+    });
+</script>
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="listings.html">Snapsell</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+            aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <form class="form-inline my-2 my-lg-0">
+            <div class="input-group input-group-sm" id="searchbar">
+                <input type="text" size="50" class="form-control" id="search" aria-label="Small"
+                    aria-describedby="inputGroup-sizing-sm" placeholder="Search...">
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-secondary btn-number" id="searchbutton">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="collapse navbar-collapse justify-content-end" id="navbarsExampleDefault">
+                <a href="sell.html"><button type="button" class="btn-danger btn-sm ml-3">
+                        Sell
+                    </button></a>
+                <a href="viewprofile.html"><button type="button" class="btn-primary btn-sm ml-3" id="profile">
+                        Profile
+                    </button></a>
+                <a href="offers.html"><button type="button" class="btn-info btn-sm ml-3">
+                        <i class="far fa-comments"></i>Offers
+                    </button></a>
+                <button type="button" class="btn-info btn-sm ml-3" id="logout">
+                    Logout
+                </button>
+        </form>
+    </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 id='header1'>Your offers</h1>
+            <div id="offers">
+            </div>
+        </div>
+        <div class="col">
+            <h1 id='header1'>Your offers status</h1>
+            <div id="offer_status">
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,128 @@
+
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://kit.fontawesome.com/2a646d8a1f.js" crossorigin="anonymous"></script>
+<!------ Include the above in your HEAD tag ---------->
+
+<link rel="stylesheet" href="css/listings.css">
+
+<script>
+    $(document).ready(function () {
+        var userData = localStorage.getItem('userData');
+        var userDataJson = JSON.parse(userData);
+        var username = userDataJson[0].username;
+        var email = userDataJson[0].email;
+        var firstname = userDataJson[0].firstname;
+        var lastname = userDataJson[0].lastname;
+        var token = localStorage.getItem('token');
+        $('#profile').html(username);
+        $('#username').html(username);
+        $('#email').html(email);
+        $('#firstname').html(firstname);
+        $('#lastname').html(lastname);
+
+        $('#updateinfo').click(function () {
+            window.location.assign("http://localhost:3001/updateprofile.html")
+        });
+        
+
+        $('#logout').click(function () {
+            $.ajax({
+                url: "http://localhost:8081/user/logout",//supply the api url
+                type: "POST",///supply the method
+                contentType: "application/json",//standard
+                dataType: "json",
+                success: function (data, textStatus, xhr) {//retrieve some data back from server
+                    console.log(data)
+                    window.localStorage.clear()
+                    window.location.assign("http://localhost:3001/loginPage.html")
+                }, error(xhr, textStatus, err) {
+                    console.log(err)
+                    console.log("Error")
+                }
+            });
+            return false;
+        });
+
+        $('#searchbutton').click(function () {
+            var search = $('#search').val()
+            window.location.assign("http://localhost:3001/searchlistings.html?search=" + `${search}`)
+        });
+    });
+</script>
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="listings.html">Snapsell</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+            aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <form class="form-inline my-2 my-lg-0">
+            <div class="input-group input-group-sm" id="searchbar">
+                <input type="text" size="50" class="form-control" id="search" aria-label="Small"
+                    aria-describedby="inputGroup-sizing-sm" placeholder="Search...">
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-secondary btn-number" id="searchbutton">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="collapse navbar-collapse justify-content-end" id="navbarsExampleDefault">
+                <a href="sell.html"><button type="button" class="btn-danger btn-sm ml-3">
+                        Sell
+                    </button></a>
+                <a href="viewprofile.html"><button type="button" class="btn-primary btn-sm ml-3" id="profile">
+                        Profile
+                    </button></a>
+                <a href="offers.html"><button type="button" class="btn-info btn-sm ml-3">
+                        <i class="far fa-comments"></i>Offers
+                    </button></a>
+                <button type="button" class="btn-info btn-sm ml-3" id="logout">
+                    Logout
+                </button>
+        </form>
+    </div>
+    </div>
+</nav>
+
+<section class="jumbotron text-center">
+    <div class="container">
+        <h1 class="jumbotron-heading" id='header1'>Your Profile</h1>
+    </div>
+</section>
+<div class="container">
+        <div class="row">
+            <label for="title" class="col-4 ">Username:</label>
+            <div class="col-6">
+                    <p id = "username"></p>
+            </div>
+        </div>
+        <div class="row">
+            <label for="category" class="col-4 ">Email:</label>
+            <div class="col-6">
+                <p id = "email"></p>
+            </div>
+        </div>
+        <div class="row">
+            <label for="price" class="col-4 ">First Name:</label>
+            <div class="col-4">
+                <p id = "firstname"></p>
+            </div>
+        </div>
+        <div class="row">
+            <label for="price" class="col-4">Last Name:</label>
+            <div class="col-4">
+                <p id = "lastname"></p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="offset-4 col-8">
+                <button id = "updateinfo"class="btn btn-primary">Update Info</button>
+            </div>
+        </div>
+</div>
