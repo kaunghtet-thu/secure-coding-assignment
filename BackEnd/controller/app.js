@@ -9,6 +9,8 @@ var offers = require('../model/offer');
 var likes = require('../model/likes');
 var images = require('../model/images')
 var verifyToken = require('../auth/verifyToken.js');
+var morgan = require('morgan'); // Importing morgan for logging
+var rfs = require('rotating-file-stream'); // Importing rotating-file-stream
 
 var path = require("path");
 var multer = require('multer')
@@ -21,7 +23,13 @@ app.options('*', cors());//Just use
 app.use(cors());//Just use
 app.use(bodyParser.json());
 app.use(urlencodedParser);
-
+var logStream = rfs.createStream('access.log', {
+	interval: '10d', // Rotate every 10 days
+	path: path.join(__dirname, 'logs'), // Specify the directory to store logs
+	maxFiles: 3, // Keep only the latest 3 log files (for 30 days)
+  });
+  
+  app.use(morgan(':method :url :status :res[content-length] - :response-time ms :date[iso] :remote-addr :user-agent', { stream: logStream }));
 //User APIs
 app.post('/user/login', function (req, res) {//Login
 	var email = req.body.email;
