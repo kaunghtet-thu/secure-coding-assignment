@@ -34,7 +34,8 @@ app.post('/user/login', function (req, res) {//Login
 		} else {
 			res.statusCode = 201;
 			res.setHeader('Content-Type', 'application/json');
-			delete result[0]['password'];//clear the password in json data, do not send back to client
+			console.log(result, "at 37")
+			delete result['password'];//clear the password in json data, do not send back to client
 			res.json({ success: true, UserData: JSON.stringify(result), token: token, status: 'You are successfully logged in!' });
 		}
 	});
@@ -44,10 +45,10 @@ app.post('/user', function (req, res) {//Create User
 	var username = req.body.username;
 	var email = req.body.email;
 	var password = req.body.password;
-	var profile_pic_url = req.body.profile_pic_url
-	var role = req.body.role
+	var firstname = req.body.firstname;
+	var lastname = req.body.lastname;
 
-	user.addUser(username, email, password, profile_pic_url, role, function (err, result) {
+	user.addUser(username, email, password, firstname, lastname, function (err, result) {
 		if (err) {
 			res.status(500);
 			res.send(err);
