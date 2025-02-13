@@ -10,6 +10,7 @@ var offers = require('../model/offer');
 var likes = require('../model/likes');
 var images = require('../model/images')
 var verifyToken = require('../auth/verifyToken.js');
+
 const fs = require("fs");
 const morgan = require("morgan");
 const rfs = require("rotating-file-stream");
@@ -27,6 +28,7 @@ app.options('*', cors());//Just use
 app.use(cors());//Just use
 app.use(bodyParser.json());
 app.use(urlencodedParser);
+
 
 const logStream = rfs.createStream("access.log", {
   interval: "1d", // Rotate daily
@@ -121,6 +123,7 @@ const detectFailedLogins = () => {
 setInterval(detectFailedLogins, 60 * 1000);
 
 app.post('/user', function (req, res) {//Create User
+
   var username = req.body.username;
   var email = req.body.email;
   var password = req.body.password;

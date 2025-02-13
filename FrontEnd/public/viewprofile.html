@@ -12,6 +12,7 @@
     $(document).ready(function () {
         var userData = localStorage.getItem('userData');
         var userDataJson = JSON.parse(userData);
+        console.log(userDataJson, "at 15")
         var username = userDataJson[0].username;
         var email = userDataJson[0].email;
         var firstname = userDataJson[0].firstname;

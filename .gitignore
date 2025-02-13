@@ -1,3 +1,7 @@
+node_modules
+.env
+logs
+
 Set Up Instructions.txt
 # Compiled output
 dist/
