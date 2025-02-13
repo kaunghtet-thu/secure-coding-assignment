@@ -1,9 +1,3 @@
-
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<!------ Include the above in your HEAD tag ---------->
-
 <!DOCTYPE html>
 <html>
 
@@ -14,7 +8,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link rel="stylesheet" href="css/login.css">
 </head>
-<!--Coded with love by Mutiullah Samim-->
 
 <body>
     <div class="container h-100">
@@ -26,57 +19,75 @@
                     </div>
                 </div>
                 <div class="d-flex justify-content-center form_container">
-                    <form>
+                    <form id="loginForm">
                         <div class="input-group mb-3">
                             <div class="input-group-append">
                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
                             </div>
-                            <input type="text" name="" class="form-control input_user" id = "email"value="" placeholder="email">
+                            <input type="text" name="email" class="form-control input_user" id="email" placeholder="email">
                         </div>
                         <div class="input-group mb-2">
                             <div class="input-group-append">
                                 <span class="input-group-text"><i class="fas fa-key"></i></span>
                             </div>
-                            <input type="password" name="" class="form-control input_pass" id = "password" value=""
-                                placeholder="password">
+                            <input type="password" name="password" class="form-control input_pass" id="password" placeholder="password">
                         </div>
                         <div class="d-flex justify-content-center mt-3 login_container">
                             <button type="button" name="button" class="btn login_btn" id="Login">Login</button>
                         </div>
+                        <div id="errorMessage" class="text-danger text-center mt-3"></div>
                     </form>
                 </div>
+            </div>
         </div>
     </div>
+
     <script>
         $(document).ready(function () {
-            $('#Login').click(function () { 
+            $('#Login').click(function () {
                 var email = $('#email').val();
                 var password = $('#password').val();
-                var data = `{"email":"${email}","password":"${password}"}`
+
+                // Validate inputs
+                if (!email || !password) {
+                    $('#errorMessage').text("Email and password are required.");
+                    return;
+                }
+
+                var data = JSON.stringify({ email: email, password: password });
 
                 $.ajax({
-                    url:"http://localhost:8081/user/login",//supply the api url
-                    type:"POST",///supply the method
-                    data:data,//supply the data to the back-end(like PostMAN body but sending it in raw json format)
-                    contentType:"application/json",//standard
-                    dataType:"json",
-                    success:function(data,textStatus,xhr){//retrieve some data back from server
-                        if(data != null){
+                    url: "http://localhost:8081/user/login", // API URL
+                    type: "POST", // HTTP method
+                    data: data, // Data to send to the backend
+                    contentType: "application/json", // Content type
+                    dataType: "json", // Expected response type
+                    success: function (data, textStatus, xhr) {
+                        if (data.success) {
                             var userData = data.UserData;
                             var token = data.token;
-                            localStorage.setItem('token',token);//store at local storage like cache
-                            localStorage.setItem('userData',userData)
-                            window.location.assign("http://localhost:3001/listings.html")//redirect the user to the next webpage
-                        }else{
-                            window.alert("Wrong Credentials")
+                            localStorage.setItem('token', token); // Store token in local storage
+                            localStorage.setItem('userData', userData); // Store user data in local storage
+                            window.location.assign("http://localhost:3001/listings.html"); // Redirect to the next page
+                        } else {
+                            $('#errorMessage').text(data.message || "Login failed. Please try again.");
                         }
-                    },error(xhr,textStatus,err){
-                        console.log(err)
-                        window.alert("Wrong Credentials")
+                    },
+                    error: function (xhr, textStatus, err) {
+                        var errorMessage = "An error occurred. Please try again.";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        } else if (xhr.status === 423) {
+                            errorMessage = "Account is temporarily locked. Please try again later.";
+                        } else if (xhr.status === 401) {
+                            errorMessage = "Invalid email or password.";
+                        }
+                        $('#errorMessage').text(errorMessage);
                     }
                 });
-                return false;
-            })
+            });
         });
     </script>
 </body>
+
+</html>
