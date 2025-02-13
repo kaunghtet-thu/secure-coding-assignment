@@ -28,3 +28,9 @@ GET /50-1581241713214.jpg 200 469379 - 14.307 ms -
 GET /search/%3Cscript%3Ealert(%22leeDescription%22)%3C/script%3E 404 198 - 1.688 ms -
 GET /search/%3Cscript%3Ealert(%22leeDescription%22)%3C/script%3E 404 198 - 2.739 ms -
 GET /search/%3Cscript%3Ealert(%22%22)%3C/script%3E 404 184 - 3.125 ms -
+POST /user 201 108 - 187.007 ms -
+POST /user 201 108 - 119.552 ms -
+POST /user/login 200 383 - 79.960 ms LOGIN_ATTEMPT: llllfakeacc4@gmail.com - SUCCESS - Status: 200
+GET /user/listing/ 200 28 - 8.596 ms -
+GET /search/%3Cscript%3Ealert(%22leeDescription%22)%3C/script%3E 404 198 - 12.230 ms -
+POST /listing/ 400 169 - 2.111 ms -
