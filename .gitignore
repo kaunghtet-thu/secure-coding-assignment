@@ -1,1 +1,18 @@
 Set Up Instructions.txt
+# Compiled output
+dist/
+tmp/
+out-tsc/
+bazel-out/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Angular
+.angular/
+
+# Misc
+.DS_Store
+BackEnd/validator/redis.js
