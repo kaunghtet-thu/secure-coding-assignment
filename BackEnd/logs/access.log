@@ -28,3 +28,11 @@ GET /50-1581241713214.jpg 200 469379 - 14.307 ms -
 GET /search/%3Cscript%3Ealert(%22leeDescription%22)%3C/script%3E 404 198 - 1.688 ms -
 GET /search/%3Cscript%3Ealert(%22leeDescription%22)%3C/script%3E 404 198 - 2.739 ms -
 GET /search/%3Cscript%3Ealert(%22%22)%3C/script%3E 404 184 - 3.125 ms -
+POST /user/login 401 34 - 83.882 ms LOGIN_ATTEMPT: isaaac67@gmail.com - FAILURE - Status: 401
+POST /user/login 401 34 - 9.331 ms LOGIN_ATTEMPT: isaaac67@gmail.com - FAILURE - Status: 401
+POST /user/login 401 34 - 8.531 ms LOGIN_ATTEMPT: isaaac67@gmail.com - FAILURE - Status: 401
+POST /user/login 401 34 - 7.716 ms LOGIN_ATTEMPT: isaaac67@gmail.com - FAILURE - Status: 401
+POST /user/login 401 34 - 8.852 ms LOGIN_ATTEMPT: isaaac67@gmail.com - FAILURE - Status: 401
+POST /user/login 403 96 - 7.692 ms LOGIN_ATTEMPT: isaaac67@gmail.com - FAILURE - Status: 403
+POST /user/login 423 110 - 0.495 ms LOGIN_ATTEMPT: isaaac67@gmail.com - FAILURE - Status: 423
+POST /user/login 403 96 - 8.114 ms LOGIN_ATTEMPT: isaaac67@gmail.com - FAILURE - Status: 403
