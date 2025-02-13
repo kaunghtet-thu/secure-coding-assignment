@@ -56,3 +56,8 @@ POST /user/login 423 110 - 0.824 ms LOGIN_ATTEMPT: llllfakeacc4@gmail.com - FAIL
 POST /user/login 423 110 - 0.838 ms LOGIN_ATTEMPT: llllfakeacc4@gmail.com - FAILURE - Status: 423
 POST /user/login 423 110 - 0.864 ms LOGIN_ATTEMPT: llllfakeacc4@gmail.com - FAILURE - Status: 423
 POST /user/login 401 34 - 9.460 ms LOGIN_ATTEMPT: llllfakeac2@gmail.com - FAILURE - Status: 401
+POST /user 201 108 - 191.816 ms -
+POST /user/login 200 384 - 129.172 ms LOGIN_ATTEMPT: llllfakeacc777@gmail.com - SUCCESS - Status: 200
+GET /user/listing/ 304 - - 16.004 ms -
+GET /search/ 404 146 - 4.156 ms -
+GET /search/%3Cscript%3Ealert(%22leeDescription%22)%3C/script%3E 404 198 - 2.028 ms -

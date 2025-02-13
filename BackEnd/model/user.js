@@ -1,63 +1,8 @@
-const express = require('express');
-const rateLimit = require('express-rate-limit');
-const iptables = require('iptables');
-const morgan = require('morgan');
-const rfs = require('rotating-file-stream');
-const path = require('path');
 const db = require('./databaseConfig.js');
 const config = require('../config.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-
-const app = express();
-
-// Logging setup
-const logStream = rfs.createStream('access.log', {
-    interval: '1d', // rotate daily
-    path: path.join(__dirname, 'log')
-});
-
-app.use(morgan('combined', { stream: logStream }));
-
-// Rate limiting middleware
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // limit each IP to 5 requests per windowMs
-    handler: function (req, res, next) {
-        const ip = req.ip;
-        blockIP(ip);
-        res.status(429).send('Too many failed login attempts. Your IP has been blocked.');
-    }
-});
-
-// Block IP using iptables
-function blockIP(ip) {
-    iptables.newChain('BLOCKED_IPS', function (err) {
-        if (err) throw err;
-
-        iptables.insertRule('INPUT', 1, ['-s', ip, '-j', 'DROP'], function (err) {
-            if (err) throw err;
-            console.log(`Blocked IP: ${ip}`);
-        });
-    });
-}
-
-// Apply rate limiting to login route
-app.use('/login', limiter);
-
-// Login route
-app.post('/login', (req, res) => {
-    const { email, password } = req.body;
-
-    userDB.loginUser(email, password, (err, token, result) => {
-        if (err) {
-            res.status(401).json({ message: 'Login failed', error: err.message });
-        } else {
-            res.status(200).json({ token, user: result });
-        }
-    });
-});
 
 // UserDB module (as provided)
 var userDB = {
