@@ -123,21 +123,23 @@ const detectFailedLogins = () => {
 setInterval(detectFailedLogins, 60 * 1000);
 
 app.post('/user', function (req, res) {//Create User
+	var username = req.body.username;
+	var email = req.body.email;
+	var password = req.body.password;
+	var firstname = req.body.firstname;
+	var lastname = req.body.lastname;
 
-  var username = req.body.username;
-  var email = req.body.email;
-  var password = req.body.password;
-  var profile_pic_url = req.body.profile_pic_url
-  var role = req.body.role
-
-  user.addUser(username, email, password, profile_pic_url, role, function (err, result) {
-    if (err) {
-      res.status(500).json({ success: false, message: err.message });
-    } else {
-      res.status(201).json({ success: true, result });
-    }	
-  });	
-});	
+	user.addUser(username, email, password, firstname, lastname, function (err, result) {
+		if (err) {
+			res.status(500);
+			res.send(err);
+		} else {
+			res.status(201);
+			res.setHeader('Content-Type', 'application/json');
+			res.send(result);
+		}
+	});
+});
 
 app.post('/user/logout', function (req, res) {//Logout
   console.log("..logging out.");
